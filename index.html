@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script data-require="jquery@*" data-semver="3.0.0" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+	<script src="https://fb.me/react-15.0.0.js"></script>
+    <script src="https://fb.me/react-dom-15.0.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <script type="text/script" src="src/script.js"></script>
+	<script> 
+	var Card = ReactDOM.createClass({displayName: "Card",
+  getInitialState: function() {
+    return {};
+  },
+  componentDidMount: function() {
+    var component = this;
+    $.get("https://api.github.com/users/"+this.props.login,function(data) {
+      component.setState(data);
+    });
+  },
+  render: function() {
+    return (
+      ReactDOM.createElement("div", null, 
+        ReactDOM.createElement("img", {src: this.state.avatar_url, width: "100"}), 
+        ReactDOM.createElement("h3", null, this.state.name), 
+        ReactDOM.createElement("hr", null)
+      )
+      );
+  }
+})
+var Form = ReactDOM.createClass({displayName: "Form",
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var loginInput = ReactDOM.findDOMNode(this.refs.login);
+    this.props.addCard(loginInput.value);
+    loginInput.value ='';
+  },
+  render: function() {
+    return (
+      ReactDOM.createElement("form", {onSubmit: this.handleSubmit}, 
+        ReactDOM.createElement("input", {placeholder: "github login", ref: "login"}), 
+        ReactDOM.createElement("button", null, "Add")
+      )
+    );
+  }
+})
+
+var Main = ReactDOM.createClass({displayName: "Main",
+  getInitialState: function() {
+    return {logins: []};
+  },
+  addCard: function(loginToAdd){
+    this.setState({logins:this.state.logins.concat(loginToAdd)});
+  }
+  ,
+  render: function() {
+    var cards = this.state.logins.map(function(login){
+      return (ReactDOM.createElement(Card, {login: login}));
+    });
+    return (
+      ReactDOM.createElement("div", null, 
+        ReactDOM.createElement(Form, {addCard: this.addCard}), 
+        cards
+      )
+      )
+  }
+});
+
+ReactDOM.render(ReactDOM.createElement(Main, null), document.getElementById("root"));
+	</script>
+	
+  </body>
+
+</html>
